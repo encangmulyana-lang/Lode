@@ -219,3 +219,6 @@ button,a{-webkit-tap-highlight-color:transparent}
   .hero .glow,.rung .arrow,.rung .flowdot,.deploying #mintCount::before,.deploying #ctaCount::before,.deploying .heroCount::before{animation:none !important}
   .rockrow,.listing,.stat{animation:none}
 }
+
+.xlink{color:var(--gold);font-weight:700;white-space:nowrap}
+.xlink:hover{color:var(--ink)}
