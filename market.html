@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d0b09'/%3E%3Cpolygon points='50,12 82,42 50,88 18,42' fill='%23f5b942'/%3E%3C/svg%3E">
+
+<title>LODE · Marketplace</title>
+<meta name="description" content="Trade Lode rocks on BNB Chain. Escrow marketplace, 5% fee.">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">⛏️ <b>LODE</b></a>
+    <div class="navlinks">
+      <a href="index.html#mint" data-en="Mint" data-ja="ミント" data-zh="铸造" data-ko="민팅">Mint</a>
+      <a href="index.html#minerals" data-en="Minerals" data-ja="鉱物" data-zh="矿物" data-ko="광물">Minerals</a>
+      <a href="mine.html" data-en="Mine" data-ja="採掘" data-zh="挖矿" data-ko="채굴">Mine</a>
+      <a href="index.html#forge" data-en="Forge" data-ja="鍛造" data-zh="鍛造" data-ko="제련">Forge</a>
+      <a href="market.html" data-en="Market" data-ja="市場" data-zh="市场" data-ko="마켓">Market</a>
+    </div>
+    <div class="langs">
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ja" onclick="setLang('ja')">JA</button>
+      <button data-lang="zh" onclick="setLang('zh')">ZH</button>
+      <button data-lang="ko" onclick="setLang('ko')">KO</button>
+    </div>
+    <button class="burger" onclick="toggleMenu()" aria-label="Menu">☰</button>
+  </nav>
+  <div id="mobileMenu">
+    <a href="index.html#mint" data-en="Mint" data-ja="ミント" data-zh="铸造" data-ko="민팅">Mint</a>
+    <a href="index.html#minerals" data-en="Minerals" data-ja="鉱物" data-zh="矿物" data-ko="광물">Minerals</a>
+    <a href="mine.html" data-en="Mine" data-ja="採掘" data-zh="挖矿" data-ko="채굴">Mine</a>
+    <a href="index.html#forge" data-en="Forge" data-ja="鍛造" data-zh="鍛造" data-ko="제련">Forge</a>
+    <a href="market.html" data-en="Market" data-ja="市場" data-zh="市场" data-ko="마켓">Market</a>
+    <div class="langs">
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ja" onclick="setLang('ja')">JA</button>
+      <button data-lang="zh" onclick="setLang('zh')">ZH</button>
+      <button data-lang="ko" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-en="Marketplace" data-ja="マーケットプレイス" data-zh="市场" data-ko="마켓플레이스">Marketplace</div>
+    <h2 data-en="Trade rocks. Keep mining." data-ja="岩を取引し、採掘は続ける。" data-zh="交易岩石。继续挖矿。" data-ko="바위를 거래하고, 채굴은 계속.">Trade rocks. Keep mining.</h2>
+    <p class="muted" data-en="Escrow marketplace on BNB Chain. Listing moves your rock into the market contract until it sells or you cancel — it can never get stuck. Fee: 5% of each sale." data-ja="BNBチェーン上のエスクロー型マーケットプレイス。出品すると岩は売却またはキャンセルまでマーケットコントラクトに預けられます — 動かなくなることはありません。手数料：1件あたり5%。" data-zh="BNB 链上的托管市场。上架后你的岩石会存入市场合约，直到售出或你取消——永远不会卡住。手续费：每次销售 5%。" data-ko="BNB 체인상의 에스크로 마켓플레이스. 등록하면 바위는 판매되거나 취소될 때까지 마켓 컨트랙트에 보관됩니다 — 절대 멈추지 않습니다. 수수료: 판매당 5%.">Escrow marketplace on BNB Chain. Listing moves your rock into the market contract until it sells or you cancel — it can never get stuck. Fee: 5% of each sale.</p>
+
+    <div class="card">
+      <div class="btnrow">
+        <button class="btn dark" id="connectBtn" onclick="connectWallet()">CONNECT WALLET</button>
+        <button class="btn" id="loadBtn" onclick="loadMarket()" disabled>LOAD LISTINGS</button>
+      </div>
+      <p class="msg" id="pageMsg"></p>
+    </div>
+
+    <div class="statgrid" id="stats" style="display:none">
+      <div class="stat"><div class="v" id="statListed">—</div><div class="k" data-en="Listed" data-ja="出品中" data-zh="在售" data-ko="등록됨">Listed</div></div>
+      <div class="stat"><div class="v" id="statFloor">—</div><div class="k" data-en="Floor price" data-ja="最低価格" data-zh="地板价" data-ko="최저가">Floor price</div></div>
+      <div class="stat"><div class="v">5%</div><div class="k" data-en="Market fee" data-ja="市場手数料" data-zh="市场手续费" data-ko="마켓 수수료">Market fee</div></div>
+      <div class="stat"><div class="v" id="statMine">—</div><div class="k" data-en="$MINE minted" data-ja="$MINE 発行済み" data-zh="$MINE 已发行" data-ko="$MINE 발행량">$MINE minted</div></div>
+    </div>
+
+    <div id="listings" class="grid" style="margin-top:16px"></div>
+
+    <div class="card" style="margin-top:16px">
+      <h3 data-en="List your rock" data-ja="岩を出品する" data-zh="上架你的岩石" data-ko="바위 등록하기">List your rock</h3>
+      <label for="listId" data-en="Token ID" data-ja="トークンID" data-zh="代币 ID" data-ko="토큰 ID">Token ID</label>
+      <input id="listId" inputmode="numeric" placeholder="e.g. 42">
+      <label for="listPrice" data-en="Price (BNB)" data-ja="価格（BNB）" data-zh="价格（BNB）" data-ko="가격 (BNB)">Price (BNB)</label>
+      <input id="listPrice" inputmode="decimal" placeholder="e.g. 0.001">
+      <div class="btnrow">
+        <button class="btn" onclick="doList()">LIST FOR SALE</button>
+      </div>
+      <p class="msg" id="listMsg"></p>
+      <p class="dim" style="font-size:.85rem" data-en="First listing approves the market to move your rock (one approval, then list). Cancel any time — the rock always comes back to you." data-ja="初回出品時にマーケットへの岩の移動を承認します（承認1回、その後出品）。いつでもキャンセル可能 — 岩は必ずあなたに戻ります。" data-zh="首次上架需授权市场转移你的岩石（授权一次，然后上架）。随时可以取消——岩石总会回到你手中。" data-ko="첫 등록 시 바위 이동을 마켓에 승인합니다(승인 1회 후 등록). 언제든 취소 가능 — 바위는 항상 당신에게 돌아옵니다.">First listing approves the market to move your rock (one approval, then list). Cancel any time — the rock always comes back to you.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>LODE · LodeMarket · escrow · fee 5%.</p>
+  </div>
+</footer>
+
+<div id="mobileCta">
+  <div class="grow"><b>LODE</b> · <span id="ctaCount">Contracts deploying — mint opens soon.</span></div>
+  <a class="btn" href="index.html#mint">MINT</a>
+</div>
+<button id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+const TIERS = [
+  {name:"Iron", img:"images/iron.webp", power:1},
+  {name:"Quartz", img:"images/quartz.webp", power:2},
+  {name:"Copper", img:"images/copper.webp", power:3},
+  {name:"Gold", img:"images/gold.webp", power:5},
+  {name:"Diamond", img:"images/diamond.webp", power:10}
+];
+function onConnect(){
+  document.getElementById("loadBtn").disabled = false;
+  loadMarket();
+}
+function decodeListing(hex){
+  // getListing returns (address seller, uint256 price, bool active)
+  const seller = "0x" + hex.slice(26, 66);
+  const price = BigInt("0x" + hex.slice(66, 130));
+  const active = hex.slice(130, 194) !== "0".repeat(64);
+  return {seller, price, active};
+}
+async function loadMarket(){
+  const msgEl = document.getElementById("pageMsg");
+  if(IS_PLACEHOLDER){ msgEl.className = "warn"; msgEl.textContent = STR[LANG].comingSoon; return; }
+  msgEl.textContent = STR[LANG].loading;
+  try{
+    const idsRes = await rpcCall(MARKET, SEL_LISTEDIDS);
+    let ids = [];
+    if(idsRes && idsRes !== "0x"){
+      const len = Number(BigInt("0x" + idsRes.slice(66, 130)));
+      for(let i = 0; i < len; i++){
+        ids.push(Number(BigInt("0x" + idsRes.slice(130 + i*64, 194 + i*64))));
+      }
+    }
+    const rows = [];
+    let floor = null;
+    for(const id of ids){
+      const l = await rpcCall(MARKET, SEL_GETLISTING + hexPad32(id).slice(2));
+      if(!l) continue;
+      const {seller, price, active} = decodeListing(l);
+      if(!active) continue;
+      const t = await rpcCall(CONTRACT, SEL_TIEROF + hexPad32(id).slice(2));
+      const tier = t ? Number(BigInt(t)) : 0;
+      rows.push({id, seller, price, tier});
+      if(floor === null || price < floor) floor = price;
+    }
+    rows.sort((a,b)=> (a.price < b.price ? -1 : 1));
+    const stats = document.getElementById("stats");
+    stats.style.display = "grid";
+    document.getElementById("statListed").textContent = rows.length;
+    document.getElementById("statFloor").textContent = floor === null ? "—" : fmtBnb(floor) + " BNB";
+    const ts = await rpcCall(TOKEN, SEL_TOTALSUPPLY);
+    document.getElementById("statMine").textContent = ts ? fmtMine(BigInt(ts)) : "—";
+    const box = document.getElementById("listings");
+    if(!rows.length){
+      box.innerHTML = '<div class="card"><p class="muted">No listings yet — be the first to list a rock.</p></div>';
+    } else {
+      box.innerHTML = rows.map(r=>{
+        const t = TIERS[r.tier];
+        const mine = userAddr && r.seller.toLowerCase() === userAddr.toLowerCase();
+        return '<div class="listing"><img src="'+t.img+'" alt="'+t.name+'">'
+          + '<div class="grow"><b>Lode #'+r.id+'</b> · '+t.name+' (×'+t.power+')<br>'
+          + '<span class="dim">'+shortAddr(r.seller)+'</span></div>'
+          + '<div style="text-align:right"><b>'+fmtBnb(r.price)+' BNB</b><br>'
+          + (mine
+              ? '<button class="btn dark" style="padding:8px 12px;font-size:.85rem" onclick="doCancel('+r.id+')">CANCEL</button>'
+              : '<button class="btn" style="padding:8px 12px;font-size:.85rem" onclick="doBuy('+r.id+','+r.price.toString()+')">BUY</button>')
+          + '</div></div>';
+      }).join("");
+    }
+    msgEl.textContent = "";
+  }catch(e){
+    msgEl.className = "err"; msgEl.textContent = txErrMsg(e);
+  }
+}
+async function doBuy(id, price){
+  const msgEl = document.getElementById("pageMsg");
+  if(!userAddr){ const ok = await connectWallet(); if(!ok) return; }
+  try{
+    const tx = await sendTx({to: MARKET, data: SEL_BUY + hexPad32(id).slice(2), value: BigInt(price)}, 300000);
+    msgEl.textContent = "Tx sent: " + tx.hash;
+    await tx.wait();
+    msgEl.className = "ok"; msgEl.textContent = "Bought Lode #" + id + "! Reloading…";
+    loadMarket();
+  }catch(e){
+    msgEl.className = "err"; msgEl.textContent = txErrMsg(e);
+  }
+}
+async function doCancel(id){
+  const msgEl = document.getElementById("pageMsg");
+  try{
+    const tx = await sendTx({to: MARKET, data: SEL_CANCEL + hexPad32(id).slice(2)}, 200000);
+    msgEl.textContent = "Tx sent: " + tx.hash;
+    await tx.wait();
+    msgEl.className = "ok"; msgEl.textContent = "Listing cancelled. Reloading…";
+    loadMarket();
+  }catch(e){
+    msgEl.className = "err"; msgEl.textContent = txErrMsg(e);
+  }
+}
+async function doList(){
+  const msgEl = document.getElementById("listMsg");
+  const id = Number((document.getElementById("listId").value || "").trim());
+  const priceStr = (document.getElementById("listPrice").value || "").trim();
+  if(!id || !priceStr || Number(priceStr) <= 0){ msgEl.className = "warn"; msgEl.textContent = "Enter a token ID and a price above 0."; return; }
+  if(!userAddr){ const ok = await connectWallet(); if(!ok) return; }
+  const price = BigInt(Math.round(Number(priceStr) * 1e18));
+  try{
+    // Approve the market to move the rock (once).
+    const apData = "0xe985e9c5" + addrPad(userAddr).slice(2) + addrPad(MARKET).slice(2) + hexPad32(1).slice(2);
+    const isAp = await rpcCall(CONTRACT, apData);
+    if(!isAp || BigInt(isAp) === 0n){
+      const setAp = "0xa22cb465" + addrPad(MARKET).slice(2) + hexPad32(1).slice(2);
+      const ap = await sendTx({to: CONTRACT, data: setAp}, 100000);
+      msgEl.textContent = "Approving market… " + ap.hash;
+      await ap.wait();
+    }
+    const data = SEL_LIST + hexPad32(id).slice(2) + hexPad32(price).slice(2);
+    const tx = await sendTx({to: MARKET, data}, 300000);
+    msgEl.textContent = "Tx sent: " + tx.hash;
+    await tx.wait();
+    msgEl.className = "ok"; msgEl.textContent = "Listed! Reloading…";
+    loadMarket();
+  }catch(e){
+    msgEl.className = "err"; msgEl.textContent = txErrMsg(e);
+  }
+}
+function refresh(){ refreshCount(); }
+window.addEventListener("DOMContentLoaded", ()=>{
+  initLang(); initChrome(); refreshCount();
+  if(IS_PLACEHOLDER){
+    const m = document.getElementById("pageMsg");
+    if(m){ m.className = "warn"; m.textContent = STR[LANG].comingSoon; }
+  } else {
+    loadMarket();
+  }
+});
+</script>
+</body>
+</html>

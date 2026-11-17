@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d0b09'/%3E%3Cpolygon points='50,12 82,42 50,88 18,42' fill='%23f5b942'/%3E%3C/svg%3E">
+
+<title>LODE — Mine a Rock. Earn $MINE.</title>
+<meta name="description" content="LODE — 5,555 mineable rocks on BNB Chain. Each rock hides a mineral. Hold it, mine $MINE every day, forge it up the ladder.">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">⛏️ <b>LODE</b></a>
+    <div class="navlinks">
+      <a href="#mint" data-en="Mint" data-ja="ミント" data-zh="铸造" data-ko="민팅">Mint</a>
+      <a href="#minerals" data-en="Minerals" data-ja="鉱物" data-zh="矿物" data-ko="광물">Minerals</a>
+      <a href="mine.html" data-en="Mine" data-ja="採掘" data-zh="挖矿" data-ko="채굴">Mine</a>
+      <a href="#forge" data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</a>
+      <a href="market.html" data-en="Market" data-ja="市場" data-zh="市场" data-ko="마켓">Market</a>
+      <a href="#roadmap" data-en="Roadmap" data-ja="ロードマップ" data-zh="路线图" data-ko="로드맵">Roadmap</a>
+    </div>
+    <div class="langs">
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ja" onclick="setLang('ja')">JA</button>
+      <button data-lang="zh" onclick="setLang('zh')">ZH</button>
+      <button data-lang="ko" onclick="setLang('ko')">KO</button>
+    </div>
+    <button class="burger" onclick="toggleMenu()" aria-label="Menu">☰</button>
+  </nav>
+  <div id="mobileMenu">
+    <a href="#mint" data-en="Mint" data-ja="ミント" data-zh="铸造" data-ko="민팅">Mint</a>
+    <a href="#minerals" data-en="Minerals" data-ja="鉱物" data-zh="矿物" data-ko="광물">Minerals</a>
+    <a href="mine.html" data-en="Mine" data-ja="採掘" data-zh="挖矿" data-ko="채굴">Mine</a>
+    <a href="#forge" data-en="Forge" data-ja="鍛造" data-zh="鍛造" data-ko="제련">Forge</a>
+    <a href="market.html" data-en="Market" data-ja="市場" data-zh="市场" data-ko="마켓">Market</a>
+    <a href="#roadmap" data-en="Roadmap" data-ja="ロードマップ" data-zh="路线图" data-ko="로드맵">Roadmap</a>
+    <div class="langs">
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ja" onclick="setLang('ja')">JA</button>
+      <button data-lang="zh" onclick="setLang('zh')">ZH</button>
+      <button data-lang="ko" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <img class="heroimg" src="images/hero.webp" alt="A cavern of glowing mineral rocks">
+  <canvas id="shards" aria-hidden="true"></canvas>
+  <div class="glow" aria-hidden="true"></div>
+  <div class="shade"></div>
+  <div class="wrap inner">
+    <div class="eyebrow">LODE · BNB Chain</div>
+    <h1 data-en="Crack the rock." data-ja="岩を砕け。" data-zh="敲开岩石。" data-ko="바위를 깨라.">Crack the rock.</h1>
+    <h1><span data-en="Strike it rich." data-ja="一攫千金。" data-zh="一夜暴富。" data-ko="대박을 쳐라.">Strike it rich.</span></h1>
+    <p class="sub" data-en="5,555 rocks. Every rock hides a mineral — and every mineral mines $MINE, every day, on-chain." data-ja="5,555個の岩。すべての岩に鉱物が眠る — そしてすべての鉱物が毎日 $MINE を掘り出す、オンチェーンで。" data-zh="5,555 块岩石。每块岩石都藏有一种矿物——而每种矿物每天都能在链上开采 $MINE。" data-ko="5,555개의 바위. 모든 바위에는 광물이 숨어 있다 — 그리고 모든 광물은 매일 온체인에서 $MINE을 캔다.">5,555 rocks. Every rock hides a mineral — and every mineral mines $MINE, every day, on-chain.</p>
+    <div class="pillrow">
+      <span class="pill"><b data-en="FREE" data-ja="無料" data-zh="免费" data-ko="무료">FREE</b> <span data-en="first mint · Agent ID" data-ja="初回ミント · Agent ID" data-zh="首次铸造 · Agent ID" data-ko="첫 민팅 · Agent ID">first mint · Agent ID</span></span>
+      <span class="pill"><b>5</b> <span data-en="per wallet" data-ja="1ウォレットあたり" data-zh="每钱包" data-ko="지갑당">per wallet</span></span>
+      <span class="pill"><b>5,555</b> <span data-en="supply" data-ja="供給" data-zh="总量" data-ko="공급">supply</span></span>
+      <span class="pill"><b>0.0006 BNB</b> <span data-en="paid mint" data-ja="有料ミント" data-zh="付费铸造" data-ko="유료 민팅">paid mint</span></span>
+    </div>
+    <div class="heroCount"><span id="heroNum">—</span><small> / 5,555 <span data-en="mined" data-ja="採掘済み" data-zh="已开采" data-ko="채굴됨">mined</span></small></div>
+    <div class="btnrow">
+      <a class="btn" href="#mint" data-en="MINT A ROCK" data-ja="岩をミント" data-zh="铸造岩石" data-ko="바위 민팅">MINT A ROCK</a>
+      <a class="btn ghost" href="mine.html" data-en="HOW MINING WORKS" data-ja="採掘の仕組み" data-zh="挖矿机制" data-ko="채굴 방법">HOW MINING WORKS</a>
+    </div>
+  </div>
+</div>
+
+<section id="mint">
+  <div class="wrap">
+    <div class="eyebrow" data-en="Get a Lode" data-ja="Lodeを手に入れる" data-zh="获得 Lode" data-ko="Lode 얻기">Get a Lode</div>
+    <h2 data-en="Mint your rock" data-ja="岩をミントする" data-zh="铸造你的岩石" data-ko="바위 민팅하기">Mint your rock</h2>
+    <p class="muted" id="mintCount">Loading live count…</p>
+    <div class="mintbox">
+      <div class="card">
+        <h3 data-en="Mint with your wallet" data-ja="ウォレットでミント" data-zh="用钱包铸造" data-ko="지갑으로 민팅">Mint with your wallet</h3>
+        <p class="muted" data-en="Connect your wallet and mint straight to it. First mint is FREE if your wallet holds a Binance Agent ID (.ai). After that, 0.0006 BNB each, up to 5 per wallet." data-ja="ウォレットを接続して直接ミント。Binance Agent ID（.ai）を持つウォレットは初回無料。その後は1個0.0006 BNB、1ウォレット最大5個まで。" data-zh="连接钱包直接铸造。持有 Binance Agent ID（.ai）的钱包首次免费。之后每个 0.0006 BNB，每钱包最多 5 个。" data-ko="지갑을 연결해 바로 민팅하세요. Binance Agent ID(.ai)를 보유한 지갑은 첫 민팅 무료. 이후 개당 0.0006 BNB, 지갑당 최대 5개.">Connect your wallet and mint straight to it. First mint is FREE if your wallet holds a Binance Agent ID (.ai). After that, 0.0006 BNB each, up to 5 per wallet.</p>
+        <label data-en="How many" data-ja="数量" data-zh="数量" data-ko="수량">How many</label>
+        <div class="qtyrow" id="qtyRow">
+          <button data-q="1" class="on" onclick="setQty(1)">1</button>
+          <button data-q="2" onclick="setQty(2)">2</button>
+          <button data-q="3" onclick="setQty(3)">3</button>
+          <button data-q="4" onclick="setQty(4)">4</button>
+          <button data-q="5" onclick="setQty(5)">5</button>
+        </div>
+        <p class="msg" id="costLine">—</p>
+        <div class="btnrow">
+          <button class="btn dark" id="connectBtn" onclick="connectWallet()">CONNECT WALLET</button>
+          <button class="btn" id="mintBtn" onclick="doMint()">MINT — LOADING…</button>
+        </div>
+        <p class="msg" id="mintMsg"></p>
+        <p class="dim" style="font-size:.85rem" data-en="No wallet? Use the agent mint below — no wallet connect needed. Open this site inside your wallet app browser (MetaMask / Trust Wallet / Binance Wallet) for the smoothest mint." data-ja="ウォレットがない？下のエージェントミントをご利用ください — ウォレット接続は不要です。最もスムーズなミントのため、MetaMask / Trust Wallet / Binance Wallet のアプリ内ブラウザでこのサイトを開いてください。" data-zh="没有钱包？请使用下方的代理铸造——无需连接钱包。为获得最顺畅的体验，请在钱包应用内浏览器（MetaMask / Trust Wallet / Binance Wallet）中打开本网站。" data-ko="지갑이 없나요? 아래 에이전트 민팅을 이용하세요 — 지갑 연결이 필요 없습니다. 가장 원활한 민팅을 위해 MetaMask / Trust Wallet / Binance Wallet 앱 내 브라우저에서 이 사이트를 여세요.">No wallet? Use the agent mint below — no wallet connect needed. Open this site inside your wallet app browser (MetaMask / Trust Wallet / Binance Wallet) for the smoothest mint.</p>
+      </div>
+      <div class="card agentbox">
+        <h3 data-en="Mint via the Lode agent" data-ja="Lodeエージェントでミント" data-zh="通过 Lode 代理铸造" data-ko="Lode 에이전트로 민팅">Mint via the Lode agent</h3>
+        <p class="muted" data-en="Paste your wallet address. The Lode agent mints it to you — no wallet connect needed. First mint is FREE if your wallet holds an Agent ID." data-ja="ウォレットアドレスを貼り付けると、Lodeエージェントがあなたにミントします — ウォレット接続は不要です。Agent IDを持つウォレットは初回無料。" data-zh="粘贴你的钱包地址，Lode 代理会为你铸造——无需连接钱包。持有 Agent ID 的钱包首次免费。" data-ko="지갑 주소를 붙여넣으면 Lode 에이전트가 당신에게 민팅해 줍니다 — 지갑 연결이 필요 없습니다. Agent ID 보유 지갑은 첫 민팅 무료.">Paste your wallet address. The Lode agent mints it to you — no wallet connect needed. First mint is FREE if your wallet holds an Agent ID.</p>
+        <label for="agentAddr" data-en="Your wallet address" data-ja="ウォレットアドレス" data-zh="你的钱包地址" data-ko="지갑 주소">Your wallet address</label>
+        <input id="agentAddr" placeholder="0x…" autocomplete="off" spellcheck="false" oninput="updateCost()">
+        <p class="msg" id="agentCost">—</p>
+        <code id="agentPrompt">Mint 1 Lode to …</code>
+        <div class="btnrow">
+          <button class="btn" onclick="copyAgentPrompt()" data-en="COPY AGENT PROMPT" data-ja="エージェント用プロンプトをコピー" data-zh="复制代理提示" data-ko="에이전트 프롬프트 복사">COPY AGENT PROMPT</button>
+        </div>
+        <p class="msg" id="agentMsg"></p>
+        <p class="dim" style="font-size:.85rem" data-en="The agent mints directly to your wallet on BNB Chain. The first mint is free if your wallet holds an Agent ID — the agent checks this on-chain." data-ja="エージェントはBNBチェーン上であなたのウォレットに直接ミントします。初回はAgent IDを持つウォレットなら無料 — エージェントがオンチェーンで確認します。" data-zh="代理直接在 BNB 链上为你的钱包铸造。持有 Agent ID 的钱包首次免费——代理会在链上检查。" data-ko="에이전트는 BNB 체인에서 당신의 지갑으로 직접 민팅합니다. Agent ID 보유 지갑은 첫 민팅 무료 — 에이전트가 온체인에서 확인합니다.">The agent mints directly to your wallet on BNB Chain. The first mint is free if your wallet holds an Agent ID — the agent checks this on-chain.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="minerals">
+  <div class="wrap">
+    <div class="eyebrow" data-en="Minerals · Mining Power" data-ja="鉱物 · 採掘パワー" data-zh="矿物 · 挖矿算力" data-ko="광물 · 채굴 파워">Minerals · Mining Power</div>
+    <h2 data-en="Five minerals. One mountain of $MINE." data-ja="5つの鉱物。$MINE の山。" data-zh="五种矿物。一座 $MINE 矿山。" data-ko="다섯 가지 광물. $MINE의 산.">Five minerals. One mountain of $MINE.</h2>
+    <p class="muted" data-en="Every rock hides one mineral. The rarer the mineral, the more mining power it has — and the more $MINE it earns you every day." data-ja="すべての岩に1つの鉱物が眠ります。レアな鉱物ほど採掘パワーが高く、毎日得られる $MINE も多くなります。" data-zh="每块岩石藏有一种矿物。矿物越稀有，挖矿算力越高——每天为你赚取的 $MINE 也越多。" data-ko="모든 바위에는 하나의 광물이 숨어 있습니다. 희귀할수록 채굴 파워가 높아 매일 얻는 $MINE도 많아집니다.">Every rock hides one mineral. The rarer the mineral, the more mining power it has — and the more $MINE it earns you every day.</p>
+    <div class="grid cols5">
+      <div class="card tier reveal d1"><img src="images/iron.webp" alt="Iron rock" loading="lazy">
+        <div class="body"><h3>Iron <span class="chev" aria-hidden="true">▾</span></h3><p class="dim">Common · 3,055</p>
+        <div class="pow">×1</div><div class="bar"><i style="width:10%"></i></div>
+        <p class="muted">100 $MINE / day</p>
+        <div class="detail"><div class="detail-in">
+          <div class="drow"><span data-en="Supply share" data-ja="供給割合" data-zh="供应占比" data-ko="공급 비중">Supply share</span><b>55%</b></div>
+          <div class="drow"><span data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</span><b data-en="3 Iron → 1 Quartz" data-ja="Iron 3個 → Quartz 1個" data-zh="3 块铁 → 1 块石英" data-ko="Iron 3개 → Quartz 1개">3 Iron → 1 Quartz</b></div>
+          <div class="drow"><span data-en="1,000 $MINE in" data-ja="1,000 $MINE まで" data-zh="赚满 1,000 $MINE 需" data-ko="1,000 $MINE까지">1,000 $MINE in</span><b data-en="10 days" data-ja="10日" data-zh="10 天" data-ko="10일">10 days</b></div>
+        </div></div></div></div>
+      <div class="card tier reveal d2"><img src="images/quartz.webp" alt="Quartz crystal" loading="lazy">
+        <div class="body"><h3>Quartz <span class="chev" aria-hidden="true">▾</span></h3><p class="dim">Uncommon · 1,222</p>
+        <div class="pow">×2</div><div class="bar"><i style="width:20%"></i></div>
+        <p class="muted">200 $MINE / day</p>
+        <div class="detail"><div class="detail-in">
+          <div class="drow"><span data-en="Supply share" data-ja="供給割合" data-zh="供应占比" data-ko="공급 비중">Supply share</span><b>22%</b></div>
+          <div class="drow"><span data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</span><b data-en="2 Quartz → 1 Copper" data-ja="Quartz 2個 → Copper 1個" data-zh="2 块石英 → 1 块铜" data-ko="Quartz 2개 → Copper 1개">2 Quartz → 1 Copper</b></div>
+          <div class="drow"><span data-en="1,000 $MINE in" data-ja="1,000 $MINE まで" data-zh="赚满 1,000 $MINE 需" data-ko="1,000 $MINE까지">1,000 $MINE in</span><b data-en="5 days" data-ja="5日" data-zh="5 天" data-ko="5일">5 days</b></div>
+        </div></div></div></div>
+      <div class="card tier reveal d3"><img src="images/copper.webp" alt="Copper rock" loading="lazy">
+        <div class="body"><h3>Copper <span class="chev" aria-hidden="true">▾</span></h3><p class="dim">Rare · 722</p>
+        <div class="pow">×3</div><div class="bar"><i style="width:30%"></i></div>
+        <p class="muted">300 $MINE / day</p>
+        <div class="detail"><div class="detail-in">
+          <div class="drow"><span data-en="Supply share" data-ja="供給割合" data-zh="供应占比" data-ko="공급 비중">Supply share</span><b>13%</b></div>
+          <div class="drow"><span data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</span><b data-en="2 Copper → 1 Gold" data-ja="Copper 2個 → Gold 1個" data-zh="2 块铜 → 1 块金" data-ko="Copper 2개 → Gold 1개">2 Copper → 1 Gold</b></div>
+          <div class="drow"><span data-en="1,000 $MINE in" data-ja="1,000 $MINE まで" data-zh="赚满 1,000 $MINE 需" data-ko="1,000 $MINE까지">1,000 $MINE in</span><b data-en="about 3 days" data-ja="約3日" data-zh="约 3 天" data-ko="약 3일">about 3 days</b></div>
+        </div></div></div></div>
+      <div class="card tier reveal d4"><img src="images/gold.webp" alt="Gold rock" loading="lazy">
+        <div class="body"><h3>Gold <span class="chev" aria-hidden="true">▾</span></h3><p class="dim">Epic · 389</p>
+        <div class="pow">×5</div><div class="bar"><i style="width:50%"></i></div>
+        <p class="muted">500 $MINE / day</p>
+        <div class="detail"><div class="detail-in">
+          <div class="drow"><span data-en="Supply share" data-ja="供給割合" data-zh="供应占比" data-ko="공급 비중">Supply share</span><b>7%</b></div>
+          <div class="drow"><span data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</span><b data-en="2 Gold → 1 Diamond" data-ja="Gold 2個 → Diamond 1個" data-zh="2 块金 → 1 颗钻石" data-ko="Gold 2개 → Diamond 1개">2 Gold → 1 Diamond</b></div>
+          <div class="drow"><span data-en="1,000 $MINE in" data-ja="1,000 $MINE まで" data-zh="赚满 1,000 $MINE 需" data-ko="1,000 $MINE까지">1,000 $MINE in</span><b data-en="2 days" data-ja="2日" data-zh="2 天" data-ko="2일">2 days</b></div>
+        </div></div></div></div>
+      <div class="card tier reveal d5"><img src="images/diamond.webp" alt="Diamond crystal" loading="lazy">
+        <div class="body"><h3>Diamond <span class="chev" aria-hidden="true">▾</span></h3><p class="dim">Legendary · 167</p>
+        <div class="pow">×10</div><div class="bar"><i style="width:100%"></i></div>
+        <p class="muted">1,000 $MINE / day</p>
+        <div class="detail"><div class="detail-in">
+          <div class="drow"><span data-en="Supply share" data-ja="供給割合" data-zh="供应占比" data-ko="공급 비중">Supply share</span><b>3%</b></div>
+          <div class="drow"><span data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</span><b data-en="Top tier — no forge above" data-ja="最上位ティア — これ以上の鍛造なし" data-zh="顶级——无法继续锻造" data-ko="최상위 티어 — 더 이상 제련 불가">Top tier — no forge above</b></div>
+          <div class="drow"><span data-en="1,000 $MINE in" data-ja="1,000 $MINE まで" data-zh="赚满 1,000 $MINE 需" data-ko="1,000 $MINE까지">1,000 $MINE in</span><b data-en="1 day" data-ja="1日" data-zh="1 天" data-ko="1일">1 day</b></div>
+        </div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow" data-en="How It Works" data-ja="仕組み" data-zh="工作原理" data-ko="작동 방식">How It Works</div>
+    <h2 data-en="Get a rock. Mine with it. Earn $MINE." data-ja="岩を手に入れ、掘り、$MINE を得る。" data-zh="获得岩石。挖矿。赚取 $MINE。" data-ko="바위를 얻고, 채굴하고, $MINE을 벌어라.">Get a rock. Mine with it. Earn $MINE.</h2>
+    <div class="steps">
+      <div class="step reveal d1"><h3 data-en="Get a Lode" data-ja="Lodeを手に入れる" data-zh="获得 Lode" data-ko="Lode 얻기">Get a Lode</h3>
+        <p class="muted" data-en="Mint with your wallet, or paste your address and let the Lode agent mint it to you." data-ja="ウォレットでミントするか、アドレスを貼り付けてLodeエージェントにミントしてもらいます。" data-zh="用钱包铸造，或粘贴地址让 Lode 代理为你铸造。" data-ko="지갑으로 민팅하거나 주소를 붙여넣어 Lode 에이전트에게 민팅받으세요.">Mint with your wallet, or paste your address and let the Lode agent mint it to you.</p></div>
+      <div class="step reveal d2"><h3 data-en="Mine with it" data-ja="それで掘る" data-zh="用它挖矿" data-ko="그것으로 채굴">Mine with it</h3>
+        <p class="muted" data-en="Just hold it. Your rock mines $MINE every day — 100 $MINE × power, per rock." data-ja="持っているだけ。あなたの岩は毎日 $MINE を掘ります — 1個あたり 100 $MINE × パワー。" data-zh="只需持有。你的岩石每天开采 $MINE——每块岩石 100 $MINE × 算力。" data-ko="그냥 보유하세요. 당신의 바위는 매일 $MINE을 캅니다 — 바위당 100 $MINE × 파워.">Just hold it. Your rock mines $MINE every day — 100 $MINE × power, per rock.</p></div>
+      <div class="step reveal d3"><h3 data-en="Claim $MINE on-chain" data-ja="$MINE をオンチェーンで請求" data-zh="在链上领取 $MINE" data-ko="온체인에서 $MINE 청구">Claim $MINE on-chain</h3>
+        <p class="muted" data-en="Claim whenever you want on the Mine page. No browser storage, no offline claim service — your yield lives on-chain." data-ja="Mineページでいつでも請求できます。ブラウザ保存なし、オフラインの請求サービスなし — 収益はオンチェーンにあります。" data-zh="随时在挖矿页面领取。没有浏览器存储，没有离线的领取服务——你的收益就在链上。" data-ko="Mine 페이지에서 원할 때 청구하세요. 브라우저 저장도, 오프라인 청구 서비스도 없습니다 — 수익은 온체인에 있습니다.">Claim whenever you want on the Mine page. No browser storage, no offline claim service — your yield lives on-chain.</p></div>
+      <div class="step reveal d4"><h3 data-en="Forge it up" data-ja="鍛造して上げる" data-zh="向上锻造" data-ko="제련해 올리기">Forge it up</h3>
+        <p class="muted" data-en="Burn lower rocks into rarer ones. After the first 100 forges, each forge burns 1,000 $MINE — $MINE is the fuel." data-ja="下位の岩を燃やしてレアな岩に。最初の100回の鍛造の後、1回ごとに 1,000 $MINE を燃焼 — $MINE が燃料です。" data-zh="将低级岩石烧成更稀有的岩石。前 100 次锻造之后，每次锻造燃烧 1,000 $MINE——$MINE 就是燃料。" data-ko="하위 바위를 태워 더 희귀한 바위로 만드세요. 첫 100회 제련 이후에는 제련마다 1,000 $MINE이 소각됩니다 — $MINE이 연료입니다.">Burn lower rocks into rarer ones. After the first 100 forges, each forge burns 1,000 $MINE — $MINE is the fuel.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="forge">
+  <div class="wrap">
+    <div class="eyebrow" data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</div>
+    <h2 data-en="Burn the common. Keep the legendary." data-ja="コモンを燃やし、レジェンダリーを残す。" data-zh="燃烧普通，保留传奇。" data-ko="커먼을 태우고 레전더리를 남겨라.">Burn the common. Keep the legendary.</h2>
+    <p class="muted" data-en="Forge lower minerals into the next tier. First 100 forges are gas-only — after that, each forge burns 1,000 $MINE." data-ja="下位の鉱物を次のティアに鍛造。最初の100回はガスのみ — その後、1回ごとに 1,000 $MINE を燃焼します。" data-zh="将低级矿物锻造成下一等级。前 100 次锻造仅需 gas——之后每次锻造燃烧 1,000 $MINE。" data-ko="하위 광물을 다음 티어로 제련하세요. 첫 100회는 가스만 — 이후 제련마다 1,000 $MINE이 소각됩니다.">Forge lower minerals into the next tier. First 100 forges are gas-only — after that, each forge burns 1,000 $MINE.</p>
+    <div class="ladder">
+      <div class="rung reveal d1"><span class="flowdot" aria-hidden="true"></span><span class="from">3 × Iron</span><span class="arrow">→</span><span class="to">1 × Quartz</span><span class="note">×2 power</span></div>
+      <div class="rung reveal d2"><span class="flowdot" aria-hidden="true"></span><span class="from">2 × Quartz</span><span class="arrow">→</span><span class="to">1 × Copper</span><span class="note">×3 power</span></div>
+      <div class="rung reveal d3"><span class="flowdot" aria-hidden="true"></span><span class="from">2 × Copper</span><span class="arrow">→</span><span class="to">1 × Gold</span><span class="note">×5 power</span></div>
+      <div class="rung reveal d4"><span class="flowdot" aria-hidden="true"></span><span class="from">2 × Gold</span><span class="arrow">→</span><span class="to">1 × Diamond</span><span class="note">×10 power</span></div>
+    </div>
+    <p class="muted" style="margin-top:14px" data-en="Forging is on the Mine page — pick your rocks, forge, and watch your daily $MINE jump." data-ja="鍛造はMineページで — 岩を選び、鍛造して、毎日の $MINE が跳ね上がるのを見てください。" data-zh="锻造在挖矿页面进行——选择你的岩石，锻造，看着每日 $MINE 收益跃升。" data-ko="제련은 Mine 페이지에서 — 바위를 고르고 제련하면 일일 $MINE이 뛰는 것을 볼 수 있습니다.">Forging is on the Mine page — pick your rocks, forge, and watch your daily $MINE jump.</p>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <div class="eyebrow" data-en="Roadmap" data-ja="ロードマップ" data-zh="路线图" data-ko="로드맵">Roadmap</div>
+    <h2 data-en="From the first rock to the motherlode." data-ja="最初の岩から母なる鉱脈へ。" data-zh="从第一块岩石到主矿脉。" data-ko="첫 바위에서 모광맥까지.">From the first rock to the motherlode.</h2>
+    <div class="phases">
+      <div class="phase reveal d1"><h3>01 · <span data-en="FIRST STRIKE" data-ja="最初のひと掘り" data-zh="第一镐" data-ko="첫 삽">FIRST STRIKE</span></h3>
+        <p data-en="Mint opens. First mint FREE for Agent ID holders. 5,555 rocks, five minerals." data-ja="ミント開始。Agent ID保有者は初回無料。5,555個の岩、5つの鉱物。" data-zh="铸造开启。Agent ID 持有者首次免费。5,555 块岩石，五种矿物。" data-ko="민팅 시작. Agent ID 보유자 첫 민팅 무료. 5,555개 바위, 다섯 가지 광물.">Mint opens. First mint FREE for Agent ID holders. 5,555 rocks, five minerals.</p></div>
+      <div class="phase reveal d2"><h3>02 · <span data-en="MINING SEASON" data-ja="採掘シーズン" data-zh="挖矿季" data-ko="채굴 시즌">MINING SEASON</span></h3>
+        <p data-en="$MINE claims go live on-chain. Daily yield, claimable any time. Marketplace opens." data-ja="$MINE の請求がオンチェーンで開始。毎日の収益はいつでも請求可能。マーケットプレイスも開設。" data-zh="$MINE 链上领取开启。每日收益，随时领取。市场开启。" data-ko="$MINE 온체인 청구 시작. 일일 수익, 언제든 청구 가능. 마켓플레이스 오픈."> $MINE claims go live on-chain. Daily yield, claimable any time. Marketplace opens.</p></div>
+      <div class="phase reveal d3"><h3>03 · <span data-en="FORGE RUSH" data-ja="鍛造ラッシュ" data-zh="锻造热潮" data-ko="제련 러시">FORGE RUSH</span></h3>
+        <p data-en="First 100 forges gas-only. $MINE becomes forge fuel — every forge burns 1,000 $MINE." data-ja="最初の100回の鍛造はガスのみ。$MINE が鍛造の燃料に — 1回ごとに 1,000 $MINE を燃焼。" data-zh="前 100 次锻造仅需 gas。$MINE 成为锻造燃料——每次锻造燃烧 1,000 $MINE。" data-ko="첫 100회 제련은 가스만. $MINE이 제련 연료가 됩니다 — 제련마다 1,000 $MINE 소각.">First 100 forges gas-only. $MINE becomes forge fuel — every forge burns 1,000 $MINE.</p></div>
+      <div class="phase reveal d4"><h3>04 · <span data-en="THE MOTHERLODE" data-ja="母なる鉱脈" data-zh="主矿脉" data-ko="모광맥">THE MOTHERLODE</span></h3>
+        <p data-en="Diamond rush: the 167 Diamonds decide the leaderboard. Deep-vein events, community digs." data-ja="ダイヤモンドラッシュ：167個のダイヤモンドがリーダーボードを決める。深層イベント、コミュニティ採掘。" data-zh="钻石热潮：167 颗钻石决定排行榜。深脉活动、社区挖掘。" data-ko="다이아몬드 러시: 167개 다이아몬드가 리더보드를 결정합니다. 심층 이벤트, 커뮤니티 채굴.">Diamond rush: the 167 Diamonds decide the leaderboard. Deep-vein events, community digs.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="eyebrow" data-en="Questions, answered" data-ja="よくある質問" data-zh="常见问题" data-ko="자주 묻는 질문">Questions, answered</div>
+    <h2 data-en="FAQ" data-ja="FAQ" data-zh="常见问题" data-ko="FAQ">FAQ</h2>
+    <div class="grid cols2">
+      <div class="card reveal d1"><h3 data-en="Is the first mint really free?" data-ja="初回ミントは本当に無料？" data-zh="首次铸造真的免费吗？" data-ko="첫 민팅이 정말 무료인가요?">Is the first mint really free?</h3>
+        <p class="muted" data-en="Yes, if your wallet holds a Binance Agent ID (.ai). Your first Lode is free. After that, each Lode costs 0.0006 BNB, plus gas." data-ja="はい、Binance Agent ID（.ai）を持つウォレットなら初回無料です。その後は1個0.0006 BNB＋ガス代。" data-zh="是的，如果你的钱包持有 Binance Agent ID（.ai），首个 Lode 免费。之后每个 0.0006 BNB，另加 gas。" data-ko="네, Binance Agent ID(.ai)를 보유한 지갑이면 첫 Lode는 무료입니다. 이후 개당 0.0006 BNB + 가스.">Yes, if your wallet holds a Binance Agent ID (.ai). Your first Lode is free. After that, each Lode costs 0.0006 BNB, plus gas.</p></div>
+      <div class="card reveal d2"><h3 data-en="How do I earn $MINE?" data-ja="$MINE はどうやって稼ぐ？" data-zh="如何赚取 $MINE？" data-ko="$MINE은 어떻게 버나요?">How do I earn $MINE?</h3>
+        <p class="muted" data-en="Hold a Lode. It mines 100 $MINE × its power every day. Claim it on-chain on the Mine page — your yield is never stored in a browser." data-ja="Lodeを持っているだけ。毎日 100 $MINE × パワーを掘ります。Mineページでオンチェーン請求 — 収益がブラウザに保存されることはありません。" data-zh="持有 Lode 即可。它每天开采 100 $MINE × 算力。在挖矿页面链上领取——你的收益永远不会存储在浏览器中。" data-ko="Lode를 보유하세요. 매일 100 $MINE × 파워를 캅니다. Mine 페이지에서 온체인으로 청구하세요 — 수익이 브라우저에 저장되지 않습니다.">Hold a Lode. It mines 100 $MINE × its power every day. Claim it on-chain on the Mine page — your yield is never stored in a browser.</p></div>
+      <div class="card reveal d3"><h3 data-en="What is inside my rock?" data-ja="岩の中身は？" data-zh="我的岩石里有什么？" data-ko="바위 안에 무엇이 있나요?">What is inside my rock?</h3>
+        <p class="muted" data-en="A mineral with a rarity and a mining power: Iron (55%, power 1), Quartz (22%, power 2), Copper (13%, power 3), Gold (7%, power 5), or Diamond (3%, power 10). The mineral is fixed on-chain at mint." data-ja="レアリティと採掘パワーを持つ鉱物：Iron（55%、パワー1）、Quartz（22%、パワー2）、Copper（13%、パワー3）、Gold（7%、パワー5）、Diamond（3%、パワー10）。鉱物はミント時にオンチェーンで決まります。" data-zh="一种具有稀有度和挖矿算力的矿物：铁（55%，算力 1）、石英（22%，算力 2）、铜（13%，算力 3）、金（7%，算力 5）或钻石（3%，算力 10）。矿物在铸造时于链上确定。" data-ko="희귀도와 채굴 파워를 가진 광물: Iron(55%, 파워 1), Quartz(22%, 파워 2), Copper(13%, 파워 3), Gold(7%, 파워 5), Diamond(3%, 파워 10). 광물은 민팅 시 온체인에서 정해집니다.">A mineral with a rarity and a mining power: Iron (55%, power 1), Quartz (22%, power 2), Copper (13%, power 3), Gold (7%, power 5), or Diamond (3%, power 10). The mineral is fixed on-chain at mint.</p></div>
+      <div class="card reveal d4"><h3 data-en="Can I buy or sell a Lode?" data-ja="Lodeの売買はできる？" data-zh="可以买卖 Lode 吗？" data-ko="Lode를 사고팔 수 있나요?">Can I buy or sell a Lode?</h3>
+        <p class="muted" data-en="Yes — trading is live on the Marketplace page. List your rock at a price you choose, or buy one from another holder. The marketplace takes a 5% fee on each sale." data-ja="はい — マーケットプレイスページで取引できます。自分の岩を好きな価格で出品するか、他の保有者から購入できます。手数料は1件あたり5%です。" data-zh="可以——在市场页面交易。按你选择的价格上架你的岩石，或从其他持有者处购买。每次销售市场收取 5% 手续费。" data-ko="네 — 마켓플레이스 페이지에서 거래할 수 있습니다. 원하는 가격에 바위를 등록하거나 다른 보유자에게서 구매하세요. 판매마다 5% 수수료가 부과됩니다.">Yes — trading is live on the Marketplace page. List your rock at a price you choose, or buy one from another holder. The marketplace takes a 5% fee on each sale.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>LODE · Lode/LODE · $MINE · BNB Chain · <span class="mono">NFT 0xc442e8ba26B9E5088d1D70Dc8EDFCdE4d2E911B0</span></p>
+    <p data-en="Own art, own contracts. Inspired by the rock-mining idea — never a copy." data-ja="独自のアート、独自のコントラクト。岩採掘のアイデアに着想を得たもので、コピーではありません。" data-zh="原创艺术，原创合约。灵感来自岩石挖矿的想法——绝非复制。" data-ko="자체 아트, 자체 컨트랙트. 바위 채굴 아이디어에서 영감을 받았습니다 — 복사가 아닙니다.">Own art, own contracts. Inspired by the rock-mining idea — never a copy.</p>
+  </div>
+</footer>
+
+<div id="mobileCta">
+  <div class="grow"><b>LODE</b> · <span id="ctaCount">Contracts deploying — mint opens soon.</span></div>
+  <a class="btn" href="#mint">MINT</a>
+</div>
+<button id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+let QTY = 1, lastCost = null;
+function setQty(q){
+  QTY = q;
+  document.querySelectorAll("#qtyRow button").forEach(b=>b.classList.toggle("on", Number(b.dataset.q) === q));
+  updateCost();
+}
+function isAddr(a){ return /^0x[0-9a-fA-F]{40}$/.test(a || ""); }
+async function priceFor(addr, qty){
+  if(IS_PLACEHOLDER) return null;
+  const data = SEL_PRICEFOR + addrPad(addr) + hexPad32(qty);
+  const r = await rpcCall(CONTRACT, data);
+  return r ? BigInt(r) : null;
+}
+async function updateCost(){
+  const costEl = document.getElementById("costLine");
+  const agentEl = document.getElementById("agentCost");
+  const mintBtn = document.getElementById("mintBtn");
+  const promptEl = document.getElementById("agentPrompt");
+  if(IS_PLACEHOLDER){
+    if(costEl) costEl.textContent = STR[LANG].comingSoon;
+    if(agentEl) agentEl.textContent = STR[LANG].comingSoon;
+    if(mintBtn){ mintBtn.textContent = "MINT — COMING SOON"; mintBtn.disabled = true; }
+    return;
+  }
+  // wallet cost (connected wallet, else first free unknown)
+  if(userAddr){
+    const c = await priceFor(userAddr, QTY);
+    lastCost = c;
+    if(costEl) costEl.textContent = c === null ? STR[LANG].noCount
+      : STR[LANG].total(QTY, fmtBnb(c), c === 0n);
+    if(mintBtn){ mintBtn.textContent = c === 0n ? "MINT — FREE" : "MINT — " + fmtBnb(c) + " BNB"; mintBtn.disabled = false; }
+  } else {
+    if(costEl) costEl.textContent = "—";
+    if(mintBtn){ mintBtn.textContent = "MINT — LOADING…"; mintBtn.disabled = false; }
+  }
+  // agent cost (pasted address)
+  const a = (document.getElementById("agentAddr") || {}).value || "";
+  if(isAddr(a)){
+    const c = await priceFor(a, QTY);
+    if(agentEl) agentEl.textContent = c === null ? STR[LANG].noCount
+      : STR[LANG].total(QTY, fmtBnb(c), c === 0n);
+    if(promptEl) promptEl.textContent = STR[LANG].agentPrompt(QTY, a);
+  } else {
+    if(agentEl) agentEl.textContent = a ? STR[LANG].badAddr : "—";
+    if(promptEl) promptEl.textContent = "Mint " + QTY + " Lode to …";
+  }
+}
+async function doMint(){
+  const msgEl = document.getElementById("mintMsg");
+  if(IS_PLACEHOLDER){ if(msgEl){ msgEl.className = "warn"; msgEl.textContent = STR[LANG].comingSoon; } return; }
+  if(!userAddr){
+    const ok = await connectWallet();
+    if(!ok) return;
+  }
+  if(msgEl) msgEl.textContent = "";
+  try{
+    const cost = await priceFor(userAddr, QTY);
+    if(cost === null) throw new Error(STR[LANG].noCount);
+    const data = SEL_MINT + hexPad32(QTY);
+    const tx = await sendTx({to: CONTRACT, data, value: cost}, 300000);
+    if(msgEl) msgEl.textContent = "Tx sent: " + tx.hash;
+    await tx.wait();
+    if(msgEl){ msgEl.className = "ok"; msgEl.textContent = "Minted! Refreshing count…"; }
+    refreshCount(); updateCost();
+  }catch(e){
+    if(msgEl){ msgEl.className = "err"; msgEl.textContent = txErrMsg(e); }
+  }
+}
+function copyAgentPrompt(){
+  const msgEl = document.getElementById("agentMsg");
+  const t = (document.getElementById("agentPrompt") || {}).textContent || "";
+  if(!t || t.indexOf("…") >= 0){
+    if(msgEl){ msgEl.className = "warn"; msgEl.textContent = STR[LANG].badAddr; }
+    return;
+  }
+  const done = ()=>{ if(msgEl){ msgEl.className = "ok"; msgEl.textContent = STR[LANG].copied; } };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done, ()=>{ if(msgEl) msgEl.textContent = t; });
+  } else if(msgEl){ msgEl.textContent = t; }
+}
+function refresh(){ refreshCount(); updateCost(); }
+window.addEventListener("DOMContentLoaded", ()=>{
+  initLang(); initChrome();
+  document.getElementById("heroNum").textContent = "—";
+  refreshCount(); updateCost();
+  setInterval(refreshCount, 30000);
+});
+</script>
+</body>
+</html>

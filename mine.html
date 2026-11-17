@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d0b09'/%3E%3Cpolygon points='50,12 82,42 50,88 18,42' fill='%23f5b942'/%3E%3C/svg%3E">
+
+<title>LODE · Mine $MINE</title>
+<meta name="description" content="Your Lode rocks mine $MINE every day — 100 $MINE × power per rock. Claim on-chain.">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">⛏️ <b>LODE</b></a>
+    <div class="navlinks">
+      <a href="index.html#mint" data-en="Mint" data-ja="ミント" data-zh="铸造" data-ko="민팅">Mint</a>
+      <a href="index.html#minerals" data-en="Minerals" data-ja="鉱物" data-zh="矿物" data-ko="광물">Minerals</a>
+      <a href="mine.html" data-en="Mine" data-ja="採掘" data-zh="挖矿" data-ko="채굴">Mine</a>
+      <a href="index.html#forge" data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</a>
+      <a href="market.html" data-en="Market" data-ja="市場" data-zh="市场" data-ko="마켓">Market</a>
+    </div>
+    <div class="langs">
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ja" onclick="setLang('ja')">JA</button>
+      <button data-lang="zh" onclick="setLang('zh')">ZH</button>
+      <button data-lang="ko" onclick="setLang('ko')">KO</button>
+    </div>
+    <button class="burger" onclick="toggleMenu()" aria-label="Menu">☰</button>
+  </nav>
+  <div id="mobileMenu">
+    <a href="index.html#mint" data-en="Mint" data-ja="ミント" data-zh="铸造" data-ko="민팅">Mint</a>
+    <a href="index.html#minerals" data-en="Minerals" data-ja="鉱物" data-zh="矿物" data-ko="광물">Minerals</a>
+    <a href="mine.html" data-en="Mine" data-ja="採掘" data-zh="挖矿" data-ko="채굴">Mine</a>
+    <a href="index.html#forge" data-en="Forge" data-ja="鍛造" data-zh="鍛造" data-ko="제련">Forge</a>
+    <a href="market.html" data-en="Market" data-ja="市場" data-zh="市场" data-ko="마켓">Market</a>
+    <div class="langs">
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ja" onclick="setLang('ja')">JA</button>
+      <button data-lang="zh" onclick="setLang('zh')">ZH</button>
+      <button data-lang="ko" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow" data-en="Mine $MINE" data-ja="$MINE を採掘" data-zh="开采 $MINE" data-ko="$MINE 채굴">Mine $MINE</div>
+    <h2 data-en="Your rocks are already working." data-ja="あなたの岩はすでに働いている。" data-zh="你的岩石已经在工作了。" data-ko="당신의 바위는 이미 일하고 있습니다.">Your rocks are already working.</h2>
+    <p class="muted" data-en="Every Lode mines 100 $MINE × its power, every day. Claim on-chain whenever you want — your yield lives on-chain, never in a browser." data-ja="すべてのLodeは毎日 100 $MINE × パワーを掘ります。好きなときにオンチェーンで請求 — 収益はオンチェーンにあり、ブラウザに保存されることはありません。" data-zh="每块 Lode 每天开采 100 $MINE × 算力。随时在链上领取——你的收益在链上，永远不会存储在浏览器中。" data-ko="모든 Lode는 매일 100 $MINE × 파워를 캅니다. 원할 때 온체인으로 청구하세요 — 수익은 온체인에 있으며 브라우저에 저장되지 않습니다.">Every Lode mines 100 $MINE × its power, every day. Claim on-chain whenever you want — your yield lives on-chain, never in a browser.</p>
+
+    <div class="card">
+      <div class="btnrow">
+        <button class="btn dark" id="connectBtn" onclick="connectWallet()">CONNECT WALLET</button>
+        <button class="btn" id="loadBtn" onclick="loadMine()" disabled>LOAD MY ROCKS</button>
+      </div>
+      <p class="msg" id="pageMsg"></p>
+    </div>
+
+    <div class="statgrid" id="stats" style="display:none">
+      <div class="stat"><div class="v" id="statRocks">—</div><div class="k" data-en="Rocks held" data-ja="保有する岩" data-zh="持有岩石" data-ko="보유 바위">Rocks held</div></div>
+      <div class="stat"><div class="v" id="statPower">—</div><div class="k" data-en="Total power" data-ja="合計パワー" data-zh="总算力" data-ko="총 파워">Total power</div></div>
+      <div class="stat"><div class="v" id="statAccrued">—</div><div class="k" data-en="$MINE accrued" data-ja="$MINE 未請求" data-zh="待领 $MINE" data-ko="누적 $MINE">$MINE accrued</div></div>
+      <div class="stat"><div class="v" id="statBal">—</div><div class="k" data-en="$MINE balance" data-ja="$MINE 残高" data-zh="$MINE 余额" data-ko="$MINE 잔액">$MINE balance</div></div>
+    </div>
+
+    <div id="rockList" class="grid" style="margin-top:16px"></div>
+
+    <div class="card" id="claimCard" style="display:none;margin-top:16px">
+      <h3 data-en="Claim your $MINE" data-ja="$MINE を請求" data-zh="领取 $MINE" data-ko="$MINE 청구">$MINE</h3>
+      <p class="muted" id="claimLine">—</p>
+      <div class="btnrow">
+        <button class="btn" id="claimBtn" onclick="doClaim()">CLAIM ALL $MINE</button>
+      </div>
+      <p class="msg" id="claimMsg"></p>
+      <p class="dim" style="font-size:.85rem" data-en="Claim fee: 0.0004 BNB per claim, however many rocks you claim at once. The fee goes to the project wallet." data-ja="請求手数料：1回あたり0.0004 BNB。何個まとめて請求しても同じです。手数料はプロジェクトウォレットへ。" data-zh="领取手续费：每次领取 0.0004 BNB，无论一次领取多少块岩石。手续费归项目钱包。" data-ko="청구 수수료: 1회당 0.0004 BNB. 한 번에 몇 개를 청구하든 동일합니다. 수수료는 프로젝트 지갑으로 갑니다.">Claim fee: 0.0004 BNB per claim, however many rocks you claim at once. The fee goes to the project wallet.</p>
+    </div>
+
+    <div class="card" id="forgeCard" style="display:none;margin-top:16px">
+      <h3 data-en="Forge" data-ja="鍛造" data-zh="锻造" data-ko="제련">Forge</h3>
+      <p class="muted" data-en="Burn lower rocks into the next tier. First 100 forges are gas-only — after that, each forge burns 1,000 $MINE (approve $MINE first if asked)." data-ja="下位の岩を燃やして次のティアに。最初の100回はガスのみ — その後、1回ごとに 1,000 $MINE を燃焼します（求められたら先に $MINE を承認）。" data-zh="将低级岩石烧成下一等级。前 100 次锻造仅需 gas——之后每次锻造燃烧 1,000 $MINE（如果提示，请先授权 $MINE）。" data-ko="하위 바위를 태워 다음 티어로 만드세요. 첫 100회는 가스만 — 이후 제련마다 1,000 $MINE이 소각됩니다(요청 시 먼저 $MINE을 승인하세요).">Burn lower rocks into the next tier. First 100 forges are gas-only — after that, each forge burns 1,000 $MINE (approve $MINE first if asked).</p>
+      <label for="forgeTier" data-en="Forge from tier" data-ja="鍛造元のティア" data-zh="锻造来源等级" data-ko="제련 출발 티어">Forge from tier</label>
+      <select id="forgeTier">
+        <option value="0">Iron → Quartz (3 rocks)</option>
+        <option value="1">Quartz → Copper (2 rocks)</option>
+        <option value="2">Copper → Gold (2 rocks)</option>
+        <option value="3">Gold → Diamond (2 rocks)</option>
+      </select>
+      <div class="btnrow">
+        <button class="btn" id="forgeBtn" onclick="doForge()">FORGE</button>
+      </div>
+      <p class="msg" id="forgeMsg"></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>LODE · $MINE cap 100,000,000 · <span data-en="Minted only by mining — no premine." data-ja="採掘でのみ発行 — プレマインなし。" data-zh="仅通过挖矿发行——无预挖。" data-ko="채굴로만 발행 — 프리마인 없음.">Minted only by mining — no premine.</span></p>
+  </div>
+</footer>
+
+<div id="mobileCta">
+  <div class="grow"><b>LODE</b> · <span id="ctaCount">Contracts deploying — mint opens soon.</span></div>
+  <a class="btn" href="index.html#mint">MINT</a>
+</div>
+<button id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+const TIERS = [
+  {name:"Iron", img:"images/iron.webp", power:1, rarity:"Common"},
+  {name:"Quartz", img:"images/quartz.webp", power:2, rarity:"Uncommon"},
+  {name:"Copper", img:"images/copper.webp", power:3, rarity:"Rare"},
+  {name:"Gold", img:"images/gold.webp", power:5, rarity:"Epic"},
+  {name:"Diamond", img:"images/diamond.webp", power:10, rarity:"Legendary"}
+];
+let myRocks = []; // {id, tier, accrued}
+let myAccruedTotal = 0n;
+
+function onConnect(){
+  document.getElementById("loadBtn").disabled = false;
+  loadMine();
+}
+async function rpcLogs(params){
+  for(const url of RPCS){
+    try{
+      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getLogs",params:[params]})});
+      const j = await r.json(); if(j.result) return j.result;
+    }catch(e){}
+  }
+  return [];
+}
+async function loadMine(){
+  const msgEl = document.getElementById("pageMsg");
+  if(IS_PLACEHOLDER){ msgEl.className = "warn"; msgEl.textContent = STR[LANG].comingSoon; return; }
+  if(!userAddr){ msgEl.className = "warn"; msgEl.textContent = STR[LANG].noWallet; return; }
+  msgEl.textContent = STR[LANG].loading;
+  try{
+    // Scan Transfer events TO the wallet from deploy block, then verify current ownership.
+    const fromBlock = "0x" + DEPLOY_BLOCK.toString(16);
+    const logs = await rpcLogs({fromBlock, toBlock:"latest", address:CONTRACT,
+      topics:[TRANSFER_TOPIC, null, addrPad(userAddr)]});
+    const cand = new Set();
+    for(const l of logs){
+      const id = BigInt("0x" + l.topics[3].slice(2));
+      cand.add(id);
+    }
+    // Also scan transfers FROM the wallet (rocks sold/forged away) to drop them early.
+    const outLogs = await rpcLogs({fromBlock, toBlock:"latest", address:CONTRACT,
+      topics:[TRANSFER_TOPIC, addrPad(userAddr), null]});
+    for(const l of outLogs){
+      const id = BigInt("0x" + l.topics[3].slice(2));
+      cand.add(id);
+    }
+    myRocks = [];
+    for(const id of cand){
+      const o = await rpcCall(CONTRACT, SEL_OWNEROF + hexPad32(id).slice(2));
+      if(!o) continue;
+      const owner = "0x" + o.slice(26);
+      if(owner.toLowerCase() !== userAddr.toLowerCase()) continue;
+      const t = await rpcCall(CONTRACT, SEL_TIEROF + hexPad32(id).slice(2));
+      const tier = t ? Number(BigInt(t)) : 0;
+      const a = await rpcCall(MINING, SEL_ACCRUED + hexPad32(id).slice(2));
+      myRocks.push({id: Number(id), tier, accrued: a ? BigInt(a) : 0n});
+    }
+    myRocks.sort((x,y)=>x.id - y.id);
+    renderMine();
+    msgEl.textContent = "";
+  }catch(e){
+    msgEl.className = "err"; msgEl.textContent = txErrMsg(e);
+  }
+}
+function renderMine(){
+  const stats = document.getElementById("stats");
+  const list = document.getElementById("rockList");
+  const claimCard = document.getElementById("claimCard");
+  const forgeCard = document.getElementById("forgeCard");
+  if(!myRocks.length){
+    stats.style.display = "none"; claimCard.style.display = "none"; forgeCard.style.display = "none";
+    list.innerHTML = '<div class="card"><p class="muted">No rocks yet — <a href="index.html#mint">mint one first</a>.</p></div>';
+    return;
+  }
+  const power = myRocks.reduce((s,r)=>s + TIERS[r.tier].power, 0);
+  myAccruedTotal = myRocks.reduce((s,r)=>s + r.accrued, 0n);
+  stats.style.display = "grid";
+  document.getElementById("statRocks").textContent = myRocks.length;
+  document.getElementById("statPower").textContent = "×" + power;
+  document.getElementById("statAccrued").textContent = fmtMine(myAccruedTotal);
+  rpcCall(TOKEN, SEL_BALANCEOF + addrPad(userAddr).slice(2)).then(r=>{
+    document.getElementById("statBal").textContent = r ? fmtMine(BigInt(r)) : "—";
+  });
+  list.innerHTML = myRocks.map(r=>{
+    const t = TIERS[r.tier];
+    return '<div class="rockrow"><img src="'+t.img+'" alt="'+t.name+'">'
+      + '<div class="grow"><b>Lode #'+r.id+'</b> · '+t.name+' ('+t.rarity+')<br>'
+      + '<span class="dim">Power ×'+t.power+' · '+ (t.power*100) +' $MINE/day</span></div>'
+      + '<div style="text-align:right"><div class="acc">'+fmtMine(r.accrued)+' $MINE</div>'
+      + '<div class="dim">accrued</div></div></div>';
+  }).join("");
+  claimCard.style.display = "block";
+  forgeCard.style.display = "block";
+  document.getElementById("claimLine").textContent =
+    STR[LANG].claimTotal(myRocks.length, fmtMine(myAccruedTotal));
+}
+async function doClaim(){
+  const msgEl = document.getElementById("claimMsg");
+  if(!myRocks.length) return;
+  const ids = myRocks.map(r=>r.id);
+  const fee = CLAIM_FEE_WEI; // flat 0.0004 BNB per claim tx (any number of rocks)
+  const data = SEL_CLAIM
+    + hexPad32(32).slice(2) // offset to array
+    + hexPad32(ids.length).slice(2)
+    + ids.map(id=>hexPad32(id).slice(2)).join("");
+  try{
+    const tx = await sendTx({to: MINING, data, value: fee}, 200000 + 20000 * ids.length);
+    msgEl.textContent = "Tx sent: " + tx.hash;
+    await tx.wait();
+    msgEl.className = "ok"; msgEl.textContent = "Claimed! Reloading…";
+    loadMine();
+  }catch(e){
+    msgEl.className = "err"; msgEl.textContent = txErrMsg(e);
+  }
+}
+async function doForge(){
+  const msgEl = document.getElementById("forgeMsg");
+  const tier = Number(document.getElementById("forgeTier").value);
+  const need = tier === 0 ? 3 : 2;
+  const pool = myRocks.filter(r=>r.tier === tier).map(r=>r.id);
+  if(pool.length < need){
+    msgEl.className = "warn";
+    msgEl.textContent = "You need " + need + " × " + TIERS[tier].name + " — you have " + pool.length + ".";
+    return;
+  }
+  const ids = pool.slice(0, need);
+  try{
+    // If a forge fee applies, approve $MINE first (fee is pulled via transferFrom).
+    const feeRes = await rpcCall(CONTRACT, SEL_FORGEFEE);
+    const fee = feeRes ? BigInt(feeRes) : 0n;
+    if(fee > 0n){
+      const allowData = "0xdd62ed3e" + addrPad(userAddr).slice(2) + addrPad(CONTRACT).slice(2);
+      const al = await rpcCall(TOKEN, allowData);
+      if(!al || BigInt(al) < fee){
+        const apData = "0x095ea7b3" + addrPad(CONTRACT).slice(2) + hexPad32(fee).slice(2);
+        const ap = await sendTx({to: TOKEN, data: apData}, 100000);
+        msgEl.textContent = "Approving $MINE… " + ap.hash;
+        await ap.wait();
+      }
+    }
+    const data = SEL_FORGE
+      + hexPad32(32).slice(2)
+      + hexPad32(ids.length).slice(2)
+      + ids.map(id=>hexPad32(id).slice(2)).join("");
+    const tx = await sendTx({to: CONTRACT, data}, 300000);
+    msgEl.textContent = "Tx sent: " + tx.hash;
+    await tx.wait();
+    msgEl.className = "ok"; msgEl.textContent = "Forged! Reloading…";
+    loadMine();
+  }catch(e){
+    msgEl.className = "err"; msgEl.textContent = txErrMsg(e);
+  }
+}
+function refresh(){ refreshCount(); }
+window.addEventListener("DOMContentLoaded", ()=>{
+  initLang(); initChrome(); refreshCount();
+  if(IS_PLACEHOLDER){
+    const m = document.getElementById("pageMsg");
+    if(m){ m.className = "warn"; m.textContent = STR[LANG].comingSoon; }
+  }
+});
+</script>
+</body>
+</html>
