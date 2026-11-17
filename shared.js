@@ -46,8 +46,11 @@ async function rpcCall(to, data){
   if(!to || to.toLowerCase() === ZERO) return null;
   for(const url of RPCS){
     try{
-      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+      const ctl = new AbortController();
+      const t = setTimeout(()=>ctl.abort(), 8000);
+      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},signal:ctl.signal,
         body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to,data},"latest"]})});
+      clearTimeout(t);
       const j = await r.json(); if(j.result) return j.result;
     }catch(e){}
   }
@@ -56,8 +59,11 @@ async function rpcCall(to, data){
 async function rpcGasPrice(){
   for(const url of RPCS){
     try{
-      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+      const ctl = new AbortController();
+      const t = setTimeout(()=>ctl.abort(), 8000);
+      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},signal:ctl.signal,
         body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_gasPrice",params:[]})});
+      clearTimeout(t);
       const j = await r.json(); if(j.result) return BigInt(j.result);
     }catch(e){}
   }
@@ -196,14 +202,20 @@ async function refreshCount(){
   const n = await readTotalMinted();
   if(n === null){
     if(el) el.textContent = STR[LANG].noCount;
+    // A failed read used to leave the hero stuck on "—" forever. Retry a few
+    // times, then say so in the hero instead of a silent dash.
+    if(countRetries < 3){ countRetries++; setTimeout(refreshCount, 5000); }
+    else if(hero){ hero.textContent = STR[LANG].noCount; }
     return;
   }
+  countRetries = 0;
   const p = Math.round(n / MAX_SUPPLY * 100);
   if(el) el.textContent = STR[LANG].minted(n, p);
   if(hero){ countUp(document.getElementById("heroNum"), n); }
   if(cta) cta.textContent = STR[LANG].minted(n, p);
 }
 var lastCount = null;
+var countRetries = 0;
 function countUp(el, to){
   if(!el) return;
   if(REDUCED_MOTION){ el.textContent = to; lastCount = to; return; }
