@@ -1,0 +1,19 @@
+{
+  "name": "Lode #1741",
+  "description": "Lode — 5,555 mineable rocks on BNB Chain. Each rock hides a mineral: Iron, Quartz, Copper, Gold, or Diamond. Hold a rock and it mines $MINE every day — 100 $MINE x power per day, claimable on-chain. First mint FREE for Agent ID holders, then 0.0006 BNB. Forge lower minerals up the ladder: 3 Iron to 1 Quartz, 2 Quartz to 1 Copper, 2 Copper to 1 Gold, 2 Gold to 1 Diamond.",
+  "image": "https://lode-rock.vercel.app/images/iron.webp",
+  "attributes": [
+    {
+      "trait_type": "Mineral",
+      "value": "Iron"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    },
+    {
+      "trait_type": "Mining Power",
+      "value": 1
+    }
+  ]
+}
