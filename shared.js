@@ -317,7 +317,7 @@ function initHeroFx(){
   }
   sizeCanvas();
   const COLORS = ["#f5b942","#e8862e","#d97b4f","#bfe6ff","#f2ead9"];
-  const n = hero.clientWidth < 500 ? 16 : 26;
+  const n = hero.clientWidth < 500 ? 10 : 26;
   const parts = [];
   for(let i = 0; i < n; i++){
     parts.push({
@@ -330,26 +330,34 @@ function initHeroFx(){
     });
   }
   window.__lodeFx = {particles: parts.length, reduced:false};
-  let running = false, visible = false, raf = 0, last = 0;
+  let running = false, visible = false, raf = 0, last = 0, lastDraw = 0;
+  // On phones the canvas runs at ~30fps: positions still update every frame,
+  // only the paint is thinned — same motion, half the GPU work.
+  const slowPaint = hero.clientWidth < 500;
   function draw(now){
     if(!running) return;
     const dt = Math.min(now - last, 50); last = now;
-    const W = cv.width, H = cv.height;
-    ctx.clearRect(0, 0, W, H);
     for(const p of parts){
       p.y -= p.vy * dt; p.rot += p.vr * dt;
       if(p.y < -0.05){ p.y = 1.05; p.x = Math.random(); }
-      const x = (p.x + Math.sin(now * 0.0004 + p.ph) * p.sway) * W;
-      const y = p.y * H;
-      ctx.save();
-      ctx.translate(x, y); ctx.rotate(p.rot);
-      ctx.globalAlpha = p.a;
-      ctx.fillStyle = p.c;
-      const s = p.s * dpr;
-      ctx.fillRect(-s / 2, -s / 2, s, s * 0.7); // small shard
-      ctx.restore();
     }
-    ctx.globalAlpha = 1;
+    if(!slowPaint || now - lastDraw >= 33){
+      lastDraw = now;
+      const W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      for(const p of parts){
+        const x = (p.x + Math.sin(now * 0.0004 + p.ph) * p.sway) * W;
+        const y = p.y * H;
+        ctx.save();
+        ctx.translate(x, y); ctx.rotate(p.rot);
+        ctx.globalAlpha = p.a;
+        ctx.fillStyle = p.c;
+        const s = p.s * dpr;
+        ctx.fillRect(-s / 2, -s / 2, s, s * 0.7); // small shard
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
     raf = requestAnimationFrame(draw);
   }
   function start(){ if(!running){ running = true; last = performance.now(); raf = requestAnimationFrame(draw); } }
