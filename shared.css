@@ -222,3 +222,6 @@ button,a{-webkit-tap-highlight-color:transparent}
 
 .xlink{color:var(--gold);font-weight:700;white-space:nowrap}
 .xlink:hover{color:var(--ink)}
+
+.navlinks .xfull{display:none}
+@media(min-width:1020px){.navlinks .xfull{display:inline}}
