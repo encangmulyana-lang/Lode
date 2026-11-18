@@ -190,7 +190,7 @@ async function readTotalMinted(){
   return r ? Number(BigInt(r)) : null;
 }
 async function refreshCount(){
-  const el = document.getElementById("mintCount"), hero = document.getElementById("heroCount");
+  const el = document.getElementById("mintCount"), hero = document.querySelector(".heroCount");
   const cta = document.getElementById("ctaCount");
   if(IS_PLACEHOLDER){
     const t = STR[LANG].comingSoon;
